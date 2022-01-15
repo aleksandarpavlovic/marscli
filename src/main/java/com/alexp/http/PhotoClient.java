@@ -17,7 +17,16 @@ import java.util.List;
 
 public class PhotoClient {
   private static final String BASE_URL = "https://api.nasa.gov/mars-photos/api/v1/rovers";
-  private final HttpClient httpClient = HttpClient.newHttpClient();
+
+  private final HttpClient httpClient;
+
+  public PhotoClient() {
+    httpClient = HttpClient.newHttpClient();
+  }
+
+  public PhotoClient(HttpClient httpClient) {
+    this.httpClient = httpClient;
+  }
 
   public List<String> fetchPhotos(
       String rover, String camera, LocalDate photoDate, String apiKey, int page)

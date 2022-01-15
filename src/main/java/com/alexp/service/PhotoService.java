@@ -15,16 +15,25 @@ import java.util.stream.Stream;
 
 public class PhotoService {
   private static final int PHOTOS_PER_DATE = 3;
-  private final PhotoClient client = new PhotoClient();
-  private final Cache<LocalDate, List<String>> cache =
-      new FileSystemCache<>(
-          "./cache",
-          LocalDate::toString,
-          photos -> photos.stream(),
-          linestream ->
-              linestream == null
-                  ? Collections.emptyList()
-                  : linestream.collect(Collectors.toList()));
+  private final PhotoClient client;
+  private final Cache<LocalDate, List<String>> cache;
+
+  public PhotoService() {
+    client = new PhotoClient();
+    cache =
+        new FileSystemCache<>(
+            LocalDate::toString,
+            photos -> photos.stream(),
+            linestream ->
+                linestream == null
+                    ? Collections.emptyList()
+                    : linestream.collect(Collectors.toList()));
+  }
+
+  public PhotoService(PhotoClient client, Cache<LocalDate, List<String>> cache) {
+    this.client = client;
+    this.cache = cache;
+  }
 
   public Map<LocalDate, List<String>> getPhotos(
       String rover, String camera, LocalDate lastDate, int daysBack, String apiKey) {

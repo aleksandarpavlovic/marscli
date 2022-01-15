@@ -5,7 +5,10 @@ import com.alexp.cache.FileSystemCache;
 import com.alexp.http.PhotoClient;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,11 +20,11 @@ public class PhotoService {
       new FileSystemCache<>(
           "./cache",
           LocalDate::toString,
-          photos -> photos.stream().collect(Collectors.joining(System.lineSeparator())),
-          filedata ->
-              filedata == null || filedata.isEmpty()
+          photos -> photos.stream(),
+          linestream ->
+              linestream == null
                   ? Collections.emptyList()
-                  : Arrays.asList(filedata.split(System.lineSeparator())));
+                  : linestream.collect(Collectors.toList()));
 
   public Map<LocalDate, List<String>> getPhotos(
       String rover, String camera, LocalDate lastDate, int daysBack, String apiKey) {

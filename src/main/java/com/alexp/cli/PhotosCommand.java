@@ -5,6 +5,8 @@ import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 import com.github.rvesse.airline.annotations.help.Examples;
 import com.github.rvesse.airline.annotations.restrictions.AllowedValues;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.time.LocalDate;
 
@@ -51,18 +53,12 @@ public class PhotosCommand implements Runnable {
 
   @Override
   public void run() {
-    //    System.out.println(
-    //        "Ovo je komanda photos. date="
-    //            + date
-    //            + ", days="
-    //            + daysBack
-    //            + ", rover="
-    //            + rover
-    //            + ", camera="
-    //            + camera
-    //            + ", apiKey="
-    //            + apiKey);
     var photoService = new PhotoService();
-    System.out.println(photoService.getPhotos(rover, camera, date, daysBack, apiKey));
+    System.out.println(formatToJson(photoService.getPhotos(rover, camera, date, daysBack, apiKey)));
+  }
+
+  private String formatToJson(Object o) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    return gson.toJson(o);
   }
 }

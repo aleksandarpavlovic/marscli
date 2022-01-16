@@ -15,14 +15,15 @@ import java.util.stream.Stream;
 
 public class PhotoService {
   private static final int PHOTOS_PER_DATE = 3;
+
   private final PhotoClient client;
-  private final Cache<LocalDate, List<String>> cache;
+  private final Cache<CacheKey, List<String>> cache;
 
   public PhotoService() {
     client = new PhotoClient();
     cache =
         new FileSystemCache<>(
-            LocalDate::toString,
+            CacheKey::toString,
             photos -> photos.stream(),
             linestream ->
                 linestream == null
@@ -30,7 +31,7 @@ public class PhotoService {
                     : linestream.collect(Collectors.toList()));
   }
 
-  public PhotoService(PhotoClient client, Cache<LocalDate, List<String>> cache) {
+  public PhotoService(PhotoClient client, Cache<CacheKey, List<String>> cache) {
     this.client = client;
     this.cache = cache;
   }
@@ -48,14 +49,15 @@ public class PhotoService {
   }
 
   /**
-   * Looks up in cache first. If entry for the date not found, fetch from the client, cache it and
-   * return. Side effect of the method call is cache update.
+   * Looks up in cache first. If entry for the date not found, fetches from the client, caches and
+   * returns. Side effect of the method call is cache update.
    */
   private List<String> getPhotos(String rover, String camera, LocalDate date, String apiKey) {
+    var cacheKey = new CacheKey(rover, camera, date);
     return cache.computeIfAbsent(
-        date,
-        d -> {
-          var photos = client.fetchPhotos(rover, camera, d, apiKey, 1);
+        cacheKey,
+        k -> {
+          var photos = client.fetchPhotos(rover, camera, date, apiKey, 1);
           if (photos.isEmpty()) return photos;
           return photos.subList(0, Math.min(PHOTOS_PER_DATE, photos.size()));
         });
@@ -77,6 +79,23 @@ public class PhotoService {
       var ret = date;
       date = date.minusDays(1);
       return ret;
+    }
+  }
+
+  public static class CacheKey {
+    private final String rover;
+    private final String camera;
+    private final LocalDate date;
+
+    public CacheKey(String rover, String camera, LocalDate date) {
+      this.rover = rover;
+      this.camera = camera;
+      this.date = date;
+    }
+
+    @Override
+    public String toString() {
+      return rover + "_" + camera + "_" + date;
     }
   }
 }

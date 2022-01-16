@@ -6,7 +6,7 @@ import com.github.rvesse.airline.parser.errors.ParseException;
 import java.util.Arrays;
 
 @com.github.rvesse.airline.annotations.Cli(
-    name = "nasacli",
+    name = "marscli",
     defaultCommand = Help.class,
     commands = {PhotosCommand.class, Help.class})
 public class Cli {

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 @ExtendWith(MockitoExtension.class)
 public class PhotoServiceTest {
   @Mock private PhotoClient photoClient;
-  @Mock private Cache<LocalDate, List<String>> cache;
+  @Mock private Cache<PhotoService.CacheKey, List<String>> cache;
 
   @Test
   public void testGetPhotos_twoPerDay() {
@@ -35,7 +35,7 @@ public class PhotoServiceTest {
     Mockito.when(cache.computeIfAbsent(Mockito.any(), Mockito.any()))
         .thenAnswer(
             invocation ->
-                ((Function<LocalDate, List<String>>) invocation.getArgument(1))
+                ((Function<PhotoService.CacheKey, List<String>>) invocation.getArgument(1))
                     .apply(invocation.getArgument(0)));
 
     PhotoService photoService = new PhotoService(photoClient, cache);
@@ -62,7 +62,7 @@ public class PhotoServiceTest {
     Mockito.when(cache.computeIfAbsent(Mockito.any(), Mockito.any()))
         .thenAnswer(
             invocation ->
-                ((Function<LocalDate, List<String>>) invocation.getArgument(1))
+                ((Function<PhotoService.CacheKey, List<String>>) invocation.getArgument(1))
                     .apply(invocation.getArgument(0)));
 
     PhotoService photoService = new PhotoService(photoClient, cache);
@@ -87,15 +87,14 @@ public class PhotoServiceTest {
     Mockito.when(cache.computeIfAbsent(Mockito.any(), Mockito.any()))
         .thenAnswer(
             invocation ->
-                ((Function<LocalDate, List<String>>) invocation.getArgument(1))
+                ((Function<PhotoService.CacheKey, List<String>>) invocation.getArgument(1))
                     .apply(invocation.getArgument(0)));
 
     PhotoService photoService = new PhotoService(photoClient, cache);
 
     Map<LocalDate, List<String>> result =
         photoService.getPhotos("rover", "cam", LocalDate.of(2020, 01, 20), 1, "key");
-    Assertions.assertEquals(
-        List.of("1", "2", "3"), result.get(LocalDate.of(2020, 01, 20)));
+    Assertions.assertEquals(List.of("1", "2", "3"), result.get(LocalDate.of(2020, 01, 20)));
   }
 
   private static class ImageNameGenerator implements Supplier<String> {
